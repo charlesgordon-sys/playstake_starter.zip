@@ -1,0 +1,59 @@
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  wallets      Wallet[]
+  bets         Bet[]
+}
+
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String
+  currency  String   @default("GBP")
+  balance   Decimal  @default(0)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  entries   LedgerEntry[]
+}
+
+model LedgerEntry {
+  id        String   @id @default(cuid())
+  walletId  String
+  amount    Decimal
+  kind      LedgerKind
+  ref       String?     // idempotency / external ref
+  createdAt DateTime    @default(now())
+  wallet    Wallet      @relation(fields: [walletId], references: [id])
+}
+
+model Market {
+  id           String   @id @default(cuid())
+  provider     String   // 'EA_MOCK' | 'THIRD_PARTY'
+  matchId      String
+  status       MarketStatus @default(OPEN)
+  selectionA   String
+  selectionB   String
+  priceA       Decimal
+  priceB       Decimal
+  createdAt    DateTime @default(now())
+}
+
+model Bet {
+  id         String   @id @default(cuid())
+  userId     String
+  marketId   String
+  selection  String   // 'A' | 'B'
+  stake      Decimal
+  price      Decimal
+  status     BetStatus @default(PENDING)
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  market     Market   @relation(fields: [marketId], references: [id])
+}
+
+enum Role { USER ADMIN RISK }
+enum LedgerKind { CREDIT DEBIT }
+enum MarketStatus { OPEN SUSPENDED SETTLED }
+enum BetStatus { PENDING WON LOST VOID }
