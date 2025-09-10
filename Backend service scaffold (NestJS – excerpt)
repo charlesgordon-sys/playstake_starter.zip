@@ -1,0 +1,31 @@
+// src/app.module.ts
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    PrismaModule,
+    AuthModule,
+    WalletModule,
+    MarketModule,
+    BetModule,
+  ],
+})
+export class AppModule {}
+
+// src/auth/auth.controller.ts
+@Post('register')
+async register(@Body() dto: RegisterDto) {
+  return this.authService.register(dto);
+}
+
+@Post('login')
+async login(@Body() dto: LoginDto) {
+  return this.authService.login(dto);
+}
+
+// src/bets/bets.service.ts (critical invariants)
+async placeBet(userId: string, dto: PlaceBetDto) {
+  // 1. Fetch market, verify OPEN & price not stale
+  // 2. Run exposure/limit checks for user & global
+  // 3. Start tx: debit wallet, create bet, create ledger entries
+  // 4. Commit with idempotency key to prevent double charge
+}
