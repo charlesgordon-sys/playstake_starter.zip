@@ -1,0 +1,7 @@
+[Event Feed Adapter] -> [Market Service] -> [Bet Engine]
+                              |                    |
+                        [Price Guard]         [Ledger Tx]
+                              |                    |
+                       [Risk Limits] ----> [Exposure Cache]
+                              |
+                         [Settlement] <- result webhook/cron
